@@ -1,9 +1,6 @@
 const express = require('express');
 
 const { sequelize } = require('./db/models');
-const authRouter = require('./routes/authRoute');
-const { Role } = require('./db/models');
-
 const app = express();
 
 app.use(express.json());
@@ -15,15 +12,11 @@ app.get('/', async (req, res) => {
   });
 });
 
-app.use('/api/v1/auth', authRouter);
-
 app.use('*', (req, res) => {
   res.status(404).json({ status: 'fail', message: 'Not Found' });
 });
 
-const PORT = process.env.APP_PORT || 4000;
-
-app.listen(PORT, async () => {
+app.listen(process.env.APP_PORT, async () => {
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
