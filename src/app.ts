@@ -1,25 +1,28 @@
-const express = require('express');
+import express, { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
 
-const { sequelize } = require('./db/models');
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 3000;
+const prisma = new PrismaClient();
 
 app.use(express.json());
 
 app.get('/', async (req, res) => {
   res.status(200).json({
-    status: 'suceess',
-    data: 'welcome',
+    status: 'suceesss',
+    data: 'welcomeee',
   });
 });
 
-app.use('*', (req, res) => {
+app.use('*', (req: Request, res: Response) => {
   res.status(404).json({ status: 'fail', message: 'Not Found' });
 });
 
-app.listen(process.env.APP_PORT, async () => {
+app.listen(port, async () => {
   try {
-    await sequelize.authenticate();
     console.log('Connection has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);

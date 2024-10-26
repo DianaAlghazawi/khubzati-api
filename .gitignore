@@ -1,4 +1,5 @@
 .gitconfig
 node_modules/
+dist/
 .vscode/
 .env
