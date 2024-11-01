@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  phone         String   @unique
+  otpCode       String   @map("otp_code")
+  otpExpiration DateTime @map("otp_expiration")
+  isVerified    Boolean  @default(false) @map("is_verified")
+  isActive      Boolean  @default(false) @map("is_active")
+
+  roleId String @map("role_id")
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId String   @unique
+
+  profileImage   File   @relation("ProfileImage", fields: [profileImageId], references: [id])
+  profileImageId String @unique @map("profile_image_id")
+
+  documentFile   File   @relation("DocumentFile", fields: [documentFileId], references: [id])
+  documentFileId String @unique @map("document_file")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by")
+  updatedBy String?  @map("updated_by")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  @@map("users")
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  nameEn    String
+  nameAr    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by")
+  updatedBy String?  @map("updated_by")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  User User[]
+
+  @@map("roles")
+}
+
+model Location {
+  id        String  @id @default(uuid())
+  address   String  @db.VarChar(255)
+  city      String  @db.VarChar(100)
+  state     String? @db.VarChar(100)
+  zipcode   String? @db.VarChar(10)
+  country   String  @db.VarChar(100)
+  latitude  Decimal @db.Decimal(9, 6)
+  longitude Decimal @db.Decimal(9, 6)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by")
+  updatedBy String?  @map("updated_by")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  User User?
+
+  @@map("locations")
+}
+
+model File {
+  id   String @id @default(uuid())
+  name String
+  path String // File path on the server, or UR L for cloud storage (S3, etc.)
+  type String // image/jpeg, application/octet-stream, video/mp4
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by")
+  updatedBy String?  @map("updated_by")
+  isDeleted Boolean  @default(false) @map("is_deleted")
+
+  user  User? @relation("ProfileImage")
+  userr User? @relation("DocumentFile")
+
+  @@map("files")
+}
