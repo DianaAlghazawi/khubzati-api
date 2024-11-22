@@ -1,32 +1,33 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
 }
 
 model User {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   name          String
-  phone         String   @unique
-  otpCode       String   @map("otp_code")
-  otpExpiration DateTime @map("otp_expiration")
-  isVerified    Boolean  @default(false) @map("is_verified")
-  isActive      Boolean  @default(false) @map("is_active")
+  phoneNumber   String    @unique
+  otpCode       String?   @map("otp_code")
+  otpExpiration DateTime? @map("otp_expiration")
+  isVerified    Boolean   @default(false) @map("is_verified")
+  isActive      Boolean   @default(false) @map("is_active")
 
   roleId String @map("role_id")
   role   Role   @relation(fields: [roleId], references: [id])
 
-  location   Location @relation(fields: [locationId], references: [id])
-  locationId String   @unique
+  location Location?
 
-  profileImage   File   @relation("ProfileImage", fields: [profileImageId], references: [id])
-  profileImageId String @unique @map("profile_image_id")
+  profileImage   File?   @relation("ProfileImage", fields: [profileImageId], references: [id], onDelete: Restrict)
+  profileImageId String? @unique @map("profile_image_id")
 
-  documentFile   File   @relation("DocumentFile", fields: [documentFileId], references: [id])
-  documentFileId String @unique @map("document_file")
+  documentFile   File?   @relation("DocumentFile", fields: [documentFileId], references: [id], onDelete: Restrict)
+  documentFileId String? @unique @map("document_file")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -53,14 +54,13 @@ model Role {
 }
 
 model Location {
-  id        String  @id @default(uuid())
-  address   String  @db.VarChar(255)
-  city      String  @db.VarChar(100)
-  state     String? @db.VarChar(100)
-  zipcode   String? @db.VarChar(10)
-  country   String  @db.VarChar(100)
-  latitude  Decimal @db.Decimal(9, 6)
-  longitude Decimal @db.Decimal(9, 6)
+  id          String                                @id @default(uuid())
+  address     String                                @db.VarChar(255)
+  city        String                                @db.VarChar(100)
+  state       String?                               @db.VarChar(100)
+  zipCode     String?                               @map("zip_code") @db.VarChar(10)
+  country     String                                @db.VarChar(100)
+  coordinates Unsupported("geography(Point, 4326)")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -68,8 +68,10 @@ model Location {
   updatedBy String?  @map("updated_by")
   isDeleted Boolean  @default(false) @map("is_deleted")
 
-  User User?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @unique @map("user_id")
 
+  @@index([coordinates], name: "location_idx", type: Gist)
   @@map("locations")
 }
 
@@ -78,6 +80,7 @@ model File {
   name String
   path String // File path on the server, or UR L for cloud storage (S3, etc.)
   type String // image/jpeg, application/octet-stream, video/mp4
+  size BigInt
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
