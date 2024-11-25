@@ -9,9 +9,12 @@
     "esModuleInterop": true,
     "rootDir": "./src",
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "typeRoots": ["./node_module/@types", "./src/types"]
   },
-  "exclude": ["./prisma"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts", "./prisma"]
 }
 
 // {

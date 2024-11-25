@@ -2,17 +2,18 @@
   "name": "khubzati-api",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server.js",
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/app.js",
-    "start:dev": "nodemon ./src/app.ts --watch",
+    "start": "node dist/server.js",
+    "debug": "nodemon --inspect ./src/server.ts --watch",
+    "start:dev": "nodemon ./src/server.ts --watch",
     "generate": "npx prisma generate",
     "clear": "npx prisma db push --force-reset",
-    "migrate:up": "npx prisma migrate dev --name",
+    "migrate:up": "npx prisma migrate dev",
     "migrate:down": "node ./src/migrator.js down",
     "seed": "npx prisma db seed",
     "seed:undo": "npx sequelize-cli db:seed:undo:all",
@@ -23,17 +24,27 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.21.1",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^11.0.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@ts-safeql/eslint-plugin": "^3.4.7",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.8.0",
+    "@types/uuid": "^10.0.0",
     "concurrently": "^9.0.1",
     "nodemon": "^3.1.7",
     "prisma": "^5.21.1",
     "sequelize-cli": "^6.6.2",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3"
   }
 }

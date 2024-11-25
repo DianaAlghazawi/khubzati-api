@@ -1,30 +1,19 @@
 import express, { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import authRouter from './routes/auth.route';
 
-import dotenv from 'dotenv';
-dotenv.config();
+import { globalErrorHandler } from './middlewares/global-error-handler.middleware';
 
 const app = express();
-const port = process.env.PORT || 3000;
-const prisma = new PrismaClient();
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get('/', async (req, res) => {
-  res.status(200).json({
-    status: 'suceesss',
-    data: 'welcomeee',
-  });
-});
+app.use('/api/v1/auth', authRouter);
 
-app.use('*', (req: Request, res: Response) => {
+app.all('*', (_: Request, res: Response) => {
   res.status(404).json({ status: 'fail', message: 'Not Found' });
 });
 
-app.listen(port, async () => {
-  try {
-    console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  }
-});
+app.use(globalErrorHandler);
+
+export { app };
